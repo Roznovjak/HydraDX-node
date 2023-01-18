@@ -136,6 +136,7 @@ jobs:
           branch: ${{ github.event.pull_request.base.ref }}
           name: hydradx
           path: target/release
+          search_artifacts: false
       - uses: robinraju/release-downloader@v1.2
         name: Download relay chain binary release
         with:
