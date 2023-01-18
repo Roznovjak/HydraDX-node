@@ -119,7 +119,6 @@ jobs:
   test-upgrade-runtime:
     needs: [build]
     runs-on: ubuntu-latest
-    if: ${{ needs.version-check.outputs.runtime-upgraded == 'true' }}
     steps:
       - uses: actions/checkout@v2
         with:
