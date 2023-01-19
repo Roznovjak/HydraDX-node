@@ -11,7 +11,6 @@ env:
   RELAY_CHAIN_VERSION: v0.9.28
 
 jobs:
-
   build:
     runs-on: ubuntu-latest
     steps:
