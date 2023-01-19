@@ -91,6 +91,7 @@ jobs:
           branch: master
           name: hydradx
           path: target/release
+          search_artifacts: true
       - uses: robinraju/release-downloader@v1.2
         name: Download relay chain binary release
         with:
