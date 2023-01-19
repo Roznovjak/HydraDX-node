@@ -10,16 +10,6 @@ env:
   RELAY_CHAIN_VERSION: v0.9.28
 
 jobs:
-  test-upgrade-runtime:
-    needs: [version-check]
-    runs-on: ubuntu-latest
-    if: ${{ needs.version-check.outputs.runtime-upgraded == 'true' }}
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-          ref: ${{ github.event.pull_request.head.sha }}
-
   version-check:
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
@@ -33,3 +23,13 @@ jobs:
       - name: Check runtime upgrade
         id: check-runtime
         run: echo "upgraded=true" >> $GITHUB_OUTPUT
+
+  test-upgrade-runtime:
+    needs: [version-check]
+    runs-on: ubuntu-latest
+    if: ${{ needs.version-check.outputs.runtime-upgraded == 'true' }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
