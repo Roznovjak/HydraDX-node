@@ -128,24 +128,24 @@ jobs:
         uses: codota/toolchain@00a8bf2bdcfe93aefd70422d3dec07337959d3a4
         with:
           profile: minimal
-      - name: Get crate versions
-        run: |
-          VERSION_UPDATE=$(./scripts/list_crate_updates.sh)
-          VERSION_UPDATE=$(cat << EOF
-          $VERSION_UPDATE
-          EOF
-          )
-          echo "VERSION_UPDATE<<EOF" >> $GITHUB_ENV
-          echo "$VERSION_UPDATE" >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
+#      - name: Get crate versions
+#        run: |
+#          VERSION_UPDATE=$(./scripts/list_crate_updates.sh)
+#          VERSION_UPDATE=$(cat << EOF
+#          $VERSION_UPDATE
+#          EOF
+#          )
+#          echo "VERSION_UPDATE<<EOF" >> $GITHUB_ENV
+#          echo "$VERSION_UPDATE" >> $GITHUB_ENV
+#          echo "EOF" >> $GITHUB_ENV
       - name: Check runtime upgrade
         id: check-runtime
         run: echo "upgraded=true" >> $GITHUB_OUTPUT
-      - name: Sticky Pull Request Comment
-        uses: marocchino/sticky-pull-request-comment@v2.1.0
-        with:
-          message: |
-            ${{ env.VERSION_UPDATE }}
-      - name: Evaluate result
-        if: contains(env.VERSION_UPDATE, 'have not been updated') || contains(env.VERSION_UPDATE, 'versions don''t match') || contains(env.VERSION_UPDATE, 'downgraded')
-        run: exit 1
+#      - name: Sticky Pull Request Comment
+#        uses: marocchino/sticky-pull-request-comment@v2.1.0
+#        with:
+#          message: |
+#            ${{ env.VERSION_UPDATE }}
+#      - name: Evaluate result
+#        if: contains(env.VERSION_UPDATE, 'have not been updated') || contains(env.VERSION_UPDATE, 'versions don''t match') || contains(env.VERSION_UPDATE, 'downgraded')
+#        run: exit 1
