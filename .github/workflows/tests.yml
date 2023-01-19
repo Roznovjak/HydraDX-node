@@ -10,68 +10,8 @@ env:
   RELAY_CHAIN_VERSION: v0.9.28
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-          ref: ${{ github.event.pull_request.head.sha }}
-      - name: Setup cmake
-        uses: jwlawson/actions-setup-cmake@v1.12
-      - name: Install Rust
-        uses: codota/toolchain@00a8bf2bdcfe93aefd70422d3dec07337959d3a4
-        with:
-          profile: minimal
-      - name: Build release
-        run: time cargo build --release --quiet --locked
-      - name: Version info
-        run: ./target/release/hydradx --version
-      - name: Get hydradx chainspec json
-        run: |
-          cp target/release/hydradx target/release/testing-hydradx
-          chmod +x ./target/release/testing-hydradx
-          ./target/release/testing-hydradx build-spec --chain devnet --raw > hydradx-testnet-chainspec.json
-      - name: Upload config file
-        uses: actions/upload-artifact@v2
-        with:
-          name: hydradx-testnet-chainspec.json
-          path: ./hydradx-testnet-chainspec.json
-      - name: Generate wasm binary for testnet
-        run: ./target/release/testing-hydradx export-genesis-wasm --chain hydradx-testnet-chainspec.json > para-wasm
-
-      - name: Generate genesis binary for testnet
-        run: ./target/release/testing-hydradx export-genesis-state --chain hydradx-testnet-chainspec.json > para-genesis
-
-      - name: Upload wasm binary
-        uses: actions/upload-artifact@v2
-        with:
-          name: para-wasm
-          path: ./para-wasm
-
-      - name: Upload genesis binary
-        uses: actions/upload-artifact@v2
-        with:
-          name: para-genesis
-          path: ./para-genesis
-      - name: Upload release binary
-        uses: actions/upload-artifact@v2
-        with:
-          name: hydradx
-          path: target/release/hydradx
-      - name: Upload release wasm
-        uses: actions/upload-artifact@v2
-        with:
-          name: hydradx_runtime.compact.compressed.wasm
-          path: target/release/wbuild/hydradx-runtime/hydradx_runtime.compact.compressed.wasm
-      - name: Upload testing-runtime wasm
-        uses: actions/upload-artifact@v2
-        with:
-          name: testing_hydradx_runtime.compact.compressed.wasm
-          path: target/release/wbuild/testing-hydradx-runtime/testing_hydradx_runtime.compact.compressed.wasm
-
   test-upgrade-runtime:
-    needs: [build, version-check]
+    needs: [version-check]
     runs-on: ubuntu-latest
     if: ${{ needs.version-check.outputs.runtime-upgraded == 'true' }}
     steps:
@@ -79,39 +19,6 @@ jobs:
         with:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha }}
-      - uses: actions/download-artifact@v2
-        name: Download testing runtime wasm from pipeline
-        with:
-          name: testing_hydradx_runtime.compact.compressed.wasm
-          path: scripts/upgrade-runtime
-      - uses: dawidd6/action-download-artifact@v2
-        name: Download node binary from base
-        with:
-          workflow: tests.yml
-          branch: ${{ github.event.pull_request.base.ref }}
-          name: hydradx
-          path: target/release
-      - uses: robinraju/release-downloader@v1.2
-        name: Download relay chain binary release
-        with:
-          repository: paritytech/polkadot
-          latest: true
-          fileName: polkadot
-          out-file-path: ../polkadot/target/release
-      - run: chmod +x ./hydradx && mv ./hydradx ./testing-hydradx && ./testing-hydradx --version
-        name: HydraDX version
-        working-directory: target/release
-      - run: chmod +x ./polkadot && ./polkadot --version
-        name: Polkadot version
-        working-directory: ../polkadot/target/release
-      - uses: actions/setup-node@v2
-        name: Setup node.js
-        with:
-          node-version: '14'
-          check-latest: true
-      - run: npm install && npm run start
-        name: Test runtime upgrade
-        working-directory: scripts/upgrade-runtime
 
   version-check:
     runs-on: ubuntu-latest
@@ -119,32 +26,10 @@ jobs:
     outputs:
       runtime-upgraded: ${{ steps.check-runtime.outputs.upgraded }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha }}
-      - name: Install Rust
-        uses: codota/toolchain@00a8bf2bdcfe93aefd70422d3dec07337959d3a4
-        with:
-          profile: minimal
-#      - name: Get crate versions
-#        run: |
-#          VERSION_UPDATE=$(./scripts/list_crate_updates.sh)
-#          VERSION_UPDATE=$(cat << EOF
-#          $VERSION_UPDATE
-#          EOF
-#          )
-#          echo "VERSION_UPDATE<<EOF" >> $GITHUB_ENV
-#          echo "$VERSION_UPDATE" >> $GITHUB_ENV
-#          echo "EOF" >> $GITHUB_ENV
       - name: Check runtime upgrade
         id: check-runtime
         run: echo "upgraded=true" >> $GITHUB_OUTPUT
-#      - name: Sticky Pull Request Comment
-#        uses: marocchino/sticky-pull-request-comment@v2.1.0
-#        with:
-#          message: |
-#            ${{ env.VERSION_UPDATE }}
-#      - name: Evaluate result
-#        if: contains(env.VERSION_UPDATE, 'have not been updated') || contains(env.VERSION_UPDATE, 'versions don''t match') || contains(env.VERSION_UPDATE, 'downgraded')
-#        run: exit 1
