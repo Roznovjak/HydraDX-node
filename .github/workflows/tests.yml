@@ -174,7 +174,7 @@ jobs:
         run: echo "::set-output name=upgraded::true"
       - name: Get crate versions
         run: |
-          VERSION_UPDATE=$(./scripts/list_crate_updates.sh)
+          VERSION_UPDATE="Hello"
           VERSION_UPDATE=$(cat << EOF
           $VERSION_UPDATE
           EOF
