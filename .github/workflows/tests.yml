@@ -23,6 +23,7 @@ jobs:
       - name: Install Rust
         uses: actions-rs/toolchain@v1
         with:
+          toolchain: nightly
           profile: minimal
       - name: Build release
         run: time cargo build --release --quiet --locked
