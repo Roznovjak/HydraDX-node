@@ -87,7 +87,6 @@ jobs:
       - uses: dawidd6/action-download-artifact@v2
         name: Download node binary from base
         with:
-          workflow_conclusion: ""
           workflow: tests.yml
           branch: master
           name: hydradx
