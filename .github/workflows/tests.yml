@@ -87,11 +87,11 @@ jobs:
       - uses: dawidd6/action-download-artifact@v2
         name: Download node binary from base
         with:
+          run_number: 24
           workflow: tests.yml
           branch: master
           name: hydradx
           path: target/release
-          search_artifacts: true
       - uses: robinraju/release-downloader@v1.2
         name: Download relay chain binary release
         with:
